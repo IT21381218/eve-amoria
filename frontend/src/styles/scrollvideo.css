@@ -38,7 +38,9 @@
 .scroll-video-spacer {
   width: 100%;
   height: 400vh; /* adjust to taste */
-  background: #3b1c30;
+  background: #0c0014;
+    /* background: linear-gradient(135deg, #0c0014 0%, #1a0025 100%); */
+
 }
 
 /* canvas fills viewport while fixed */

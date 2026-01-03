@@ -5,6 +5,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+    background: #0c0014;
+
 }
 
 code {
@@ -15,5 +17,5 @@ code {
 
 @font-face {
   font-family: main;
-  src: url(../public/Jadyn Maria.otf);
+  src: url(../public/JadynMaria.otf);
 }

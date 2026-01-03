@@ -1,9 +1,9 @@
 /* Layout */
 .about-container{
   padding: 3.5rem 1.25rem;
-  max-width: 1200px;
   margin: 0 auto;
   color: #0f172a;
+  background: #0a0a0a00;
 }
 
 .about-title{
@@ -12,14 +12,14 @@
   font-size: 2.25rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: #0b1220;
+  color: #ffffff;
 }
 
 /* Responsive grid for cards */
 .features-grid{
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  gap: 3.5rem;
   align-items: center;
 }
 
@@ -29,9 +29,10 @@
   max-width: 360px;
   height: 24rem; /* matches h-96 */
   padding: 1.3rem;
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,250,0.95));
-  border: 1.5px solid rgba(15,23,42,0.06); /* subtle border */
+  border-radius: 0px;
+  /* background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,250,0.95)); */
+  background-color: #07113300;
+  border: 1.5px solid rgb(255, 255, 255); /* subtle border */
   box-shadow: 0 10px 30px rgba(8,15,25,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
   transform-style: preserve-3d;
   transition: transform 450ms cubic-bezier(.2,.9,.3,1), box-shadow 350ms ease;
@@ -53,7 +54,7 @@
 .card-media{
   width: 100%;
   height: 11.5rem;
-  border-radius: 10px;
+  border-radius: 0px;
   overflow: hidden;
   margin-bottom: 0.9rem;
   transform-style: preserve-3d;
@@ -84,13 +85,13 @@
   margin: 0 0 0.5rem 0;
   font-size: 1.125rem;
   font-weight: 700;
-  color: #071133;
+  color: #ffffff;
   transform-style: preserve-3d;
 }
 
 .card-desc{
   margin: 0;
-  color: #475569;
+  color: #aaaaaa;
   line-height: 1.45;
   font-size: 0.95rem;
   transform-style: preserve-3d;

@@ -1,18 +1,27 @@
+"use client"
+
 import "../styles/hero.css"
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from "react-router-dom"
 
 function Hero() {
   const navigate = useNavigate()
 
+  const handleShopNow = () => {
+    navigate("/products")
+  }
+
   const handleLearnMore = () => {
-    navigate('/shipping')
+    navigate("/shipping")
   }
 
   return (
     <section className="hero">
       {/* Background Video */}
       <video autoPlay muted loop className="hero-video" poster="/elegant-background.jpg">
-        <source src="https://res.cloudinary.com/dwcxwpn7q/video/upload/v1762095103/machine/kling_20251102_Text_to_Video_Transition_4280_0_ueg7n0.mp4" type="video/mp4" />
+        <source
+          src="https://res.cloudinary.com/dwcxwpn7q/video/upload/v1762095103/machine/kling_20251102_Text_to_Video_Transition_4280_0_ueg7n0.mp4"
+          type="video/mp4"
+        />
         Your browser does not support the video tag.
       </video>
 
@@ -27,8 +36,12 @@ function Hero() {
         </p>
 
         <div className="hero-buttons">
-          <button className="btn btn-primary">Shop Now</button>
-          <button className="btn btn-secondary" onClick={handleLearnMore}>Learn More</button>
+          <button className="btn btn-primary" onClick={handleShopNow}>
+            Shop Now
+          </button>
+          <button className="btn btn-secondary" onClick={handleLearnMore}>
+            Learn More
+          </button>
         </div>
       </div>
     </section>

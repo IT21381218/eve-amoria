@@ -1,64 +1,77 @@
 import "../styles/footer.css"
 
-const Footer = () => {
+function Footer() {
   return (
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-section">
-          <h4>LUXE Wellness</h4>
-          <p>Premium intimate products for confidence and pleasure.</p>
+          <h4>About Luxe</h4>
+          <p>
+            Discover premium wellness products curated for your lifestyle and well-being. Experience seductive luxury
+            and elegance.
+          </p>
         </div>
 
         <div className="footer-section">
           <h4>Quick Links</h4>
           <ul>
             <li>
-              <a href="#/">About Us</a>
+              <a href="#shop">Shop</a>
             </li>
             <li>
-              <a href="#/">Shop</a>
+              <a href="#about">About Us</a>
             </li>
             <li>
-              <a href="#/">Contact</a>
+              <a href="#blog">Blog</a>
             </li>
             <li>
-              <a href="#/">Blog</a>
+              <a href="#contact">Contact</a>
             </li>
           </ul>
         </div>
 
         <div className="footer-section">
-          <h4>Policies</h4>
+          <h4>Customer Service</h4>
           <ul>
             <li>
-              <a href="#/">Privacy Policy</a>
+              <a href="#returns">Returns & Exchanges</a>
             </li>
             <li>
-              <a href="#/">Shipping Info</a>
+              <a href="#shipping">Shipping Info</a>
             </li>
             <li>
-              <a href="#/">Returns</a>
+              <a href="#faq">FAQ</a>
             </li>
             <li>
-              <a href="#/">Terms & Conditions</a>
+              <a href="#support">Support</a>
             </li>
           </ul>
         </div>
 
         <div className="footer-section">
-          <h4>Newsletter</h4>
-          <p>Get exclusive offers and wellness tips</p>
-          <input type="email" placeholder="Enter your email" className="newsletter-input" />
-          <button className="newsletter-btn">Subscribe</button>
+          <h4>Follow Us</h4>
+          <div className="social-links">
+            <a href="#instagram" title="Instagram">
+              ◌
+            </a>
+            <a href="#twitter" title="Twitter">
+              ◇
+            </a>
+            <a href="#facebook" title="Facebook">
+              ◆
+            </a>
+            <a href="#pinterest" title="Pinterest">
+              ◎
+            </a>
+          </div>
         </div>
       </div>
 
       <div className="footer-bottom">
-        <p>&copy; 2025 LUXE Wellness. All rights reserved. | 18+ Only</p>
-        <div className="social-links">
-          <a href="#/">Instagram</a>
-          <a href="#/">Twitter</a>
-          <a href="#/">TikTok</a>
+        <p>&copy; 2025 Luxe Wellness. All rights reserved.</p>
+        <div className="footer-links">
+          <a href="#privacy">Privacy Policy</a>
+          <a href="#terms">Terms of Service</a>
         </div>
       </div>
     </footer>

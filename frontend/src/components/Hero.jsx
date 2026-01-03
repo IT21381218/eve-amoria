@@ -7,7 +7,7 @@ function Hero() {
   const navigate = useNavigate()
 
   const handleShopNow = () => {
-    navigate("/products")
+    navigate("/product")
   }
 
   const handleLearnMore = () => {

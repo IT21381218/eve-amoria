@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Star, Heart, Share2, ChevronLeft, ChevronRight, Truck, Shield, RotateCcw, StarHalf, Eye, TrendingUp } from 'lucide-react';
 import "../styles/product-styles.css"
 
@@ -161,15 +160,12 @@ const products = [
 
 const ProductCard = ({ product, onClick }) => {
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
 
   return (
     <div 
       className="product-card" 
       onClick={() => onClick(product)}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="product-image-wrapper">
         <img src={product.image} alt={product.name} className="product-image" />
@@ -255,7 +251,6 @@ const ProductDetail = ({ product, onClose }) => {
   const [quantity, setQuantity] = useState(1);
   const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
 
-  // Prevent body scroll when modal is open
   React.useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => {
@@ -407,6 +402,7 @@ const ProductListing = () => {
   const [sortBy, setSortBy] = useState('popular');
   const [viewMode, setViewMode] = useState('grid');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [scrollY, setScrollY] = useState(0);
 
   const categories = [
     { id: 'all', name: 'All Products' },
@@ -415,6 +411,15 @@ const ProductListing = () => {
     { id: 'accessories', name: 'Accessories' },
     { id: 'sports', name: 'Sports & Fitness' }
   ];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const sortedProducts = [...products].sort((a, b) => {
     if (sortBy === 'price-low') return a.price - b.price;
@@ -425,10 +430,22 @@ const ProductListing = () => {
 
   return (
     <div className="app-container">
-      {/* Hero Section */}
+      {/* Hero Section with Parallax */}
       <section className="hero-section">
-        <div className="hero-overlay"></div>
-        <div className="hero-content">
+        <div 
+          className="hero-background"
+          style={{
+            transform: `translateY(${scrollY * 0.5}px) scale(${1 + scrollY * 0.0002})`
+          }}
+        ></div>
+        <div className="hero-overlay" style={{ opacity: Math.min(0.5 + scrollY * 0.001, 0.8) }}></div>
+        <div 
+          className="hero-content"
+          style={{
+            transform: `translateY(${scrollY * 0.3}px)`,
+            opacity: Math.max(1 - scrollY * 0.002, 0)
+          }}
+        >
           <h1 className="hero-title">Luxury Fashion Collection</h1>
           <p className="hero-subtitle">Discover the finest selection of premium products</p>
           <button className="hero-cta">Explore Collection</button>

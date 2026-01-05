@@ -43,7 +43,7 @@ function LearnMore() {
           {/* Background Image A - Always Visible */}
           <div className="image-layer image-layer-a">
             <img 
-              src="https://res.cloudinary.com/dwcxwpn7q/image/upload/v1767629412/1c5345c0-9cc6-43e1-9b85-18d44502641a_o2kq9a.jpg" 
+              src="https://res.cloudinary.com/dwcxwpn7q/image/upload/v1767632634/1393392_jf3cft.jpg" 
               alt="Main background"
             />
           </div>
@@ -51,7 +51,7 @@ function LearnMore() {
           {/* Revealed Image B - Shows through circular cursor */}
           <div className="image-layer image-layer-b reveal-circle">
             <img 
-              src="https://res.cloudinary.com/dwcxwpn7q/image/upload/v1767629412/8720407c-db5d-493b-843a-59fc9af5a387_whzail.jpg" 
+              src="https://res.cloudinary.com/dwcxwpn7q/image/upload/v1767632625/grok-image-7dc99bb2-d311-4c5e-9505-b40652bbbb23_etmr5y.jpg" 
               alt="Revealed background"
             />
           </div>

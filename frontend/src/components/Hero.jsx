@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Sparkles, ChevronDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 import '../styles/hero.css';
 
 function Hero() {
   const [scrollY, setScrollY] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -14,13 +16,11 @@ function Hero() {
   }, []);
 
   const handleShopNow = () => {
-    // navigate('/product');
-    console.log('Navigate to product');
+    navigate('/product');
   };
 
   const handleLearnMore = () => {
-    // navigate('/shipping');
-    console.log('Navigate to shipping');
+    navigate('/learn-more');
   };
 
   const scrollToNext = () => {
@@ -55,15 +55,6 @@ function Hero() {
         }}
       ></div>
 
-      {/* Animated Particles */}
-      <div className="particles">
-        <div className="particle"></div>
-        <div className="particle"></div>
-        <div className="particle"></div>
-        <div className="particle"></div>
-        <div className="particle"></div>
-      </div>
-
       {/* Main Content */}
       <div 
         className="hero-content"
@@ -72,11 +63,6 @@ function Hero() {
           opacity: Math.max(1 - scrollY * 0.002, 0)
         }}
       >
-        <div className="hero-badge">
-          <Sparkles size={16} />
-          <span>Premium Collection</span>
-        </div>
-
         <h1 className="hero-title">
           <span className="title-line">Discover Premium</span>
           <span className="title-line gradient-text">Wellness</span>
@@ -96,23 +82,6 @@ function Hero() {
           <button className="btn btn-secondary" onClick={handleLearnMore}>
             Learn More
           </button>
-        </div>
-
-        <div className="hero-features">
-          <div className="feature-item">
-            <span className="feature-icon">✓</span>
-            <span>Premium Quality</span>
-          </div>
-          <div className="feature-divider"></div>
-          <div className="feature-item">
-            <span className="feature-icon">✓</span>
-            <span>Discreet Shipping</span>
-          </div>
-          <div className="feature-divider"></div>
-          <div className="feature-item">
-            <span className="feature-icon">✓</span>
-            <span>Secure Payment</span>
-          </div>
         </div>
       </div>
 

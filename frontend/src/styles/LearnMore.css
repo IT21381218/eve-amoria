@@ -1,0 +1,340 @@
+/* Learn More Page Container */
+.learn-more-container {
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Full Screen Image Reveal Section */
+.image-reveal-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Header Section - Overlaid on Image */
+.learn-more-header {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+  animation: fadeInDown 0.8s ease-out;
+  pointer-events: none;
+}
+
+.learn-more-header h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #e94b8a, #a855f7, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+}
+
+.learn-more-header p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% - 30px));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Image Reveal Container - Main Interactive Element */
+.image-reveal-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: none;
+}
+
+/* Image Layer Base Style */
+.image-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.image-layer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Background Image A - Always Visible */
+.image-layer-a {
+  z-index: 1;
+}
+
+/* Image B - Revealed through Circle */
+.image-layer-b {
+  z-index: 2;
+}
+
+/* Circular Reveal Effect using CSS mask-image */
+.reveal-circle {
+  /* CSS Custom Properties set via JavaScript from mousePos */
+  -webkit-mask-image: radial-gradient(
+    circle at var(--circle-x, 50%) var(--circle-y, 50%),
+    black 0%,
+    black calc(var(--radius, 100px) - 10px),
+    rgba(0, 0, 0, 0.3) calc(var(--radius, 100px) - 5px),
+    transparent var(--radius, 100px)
+  );
+  mask-image: radial-gradient(
+    circle at var(--circle-x, 50%) var(--circle-y, 50%),
+    black 0%,
+    black calc(var(--radius, 100px) - 10px),
+    rgba(0, 0, 0, 0.3) calc(var(--radius, 100px) - 5px),
+    transparent var(--radius, 100px)
+  );
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+  
+  /* Smooth transition for mask movement */
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  will-change: -webkit-mask-image, mask-image;
+}
+
+/* Custom Cursor Indicator - Follows mouse */
+.cursor-indicator {
+  position: fixed;
+  width: 200px;
+  height: 200px;
+  border: 2px solid rgba(233, 75, 138, 0.6);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  box-shadow: 
+    0 0 20px rgba(233, 75, 138, 0.4),
+    inset 0 0 20px rgba(233, 75, 138, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.image-reveal-container:hover .cursor-indicator {
+  opacity: 1;
+}
+
+/* Inner circle glow */
+.cursor-indicator::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #e94b8a, #a855f7);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 15px rgba(233, 75, 138, 0.8);
+}
+
+/* Info Section */
+.learn-more-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 4rem auto;
+  padding: 0 2rem;
+  z-index: 10;
+}
+
+.info-card {
+  background: linear-gradient(135deg, rgba(233, 75, 138, 0.05), rgba(168, 85, 247, 0.05));
+  border: 1px solid rgba(233, 75, 138, 0.2);
+  border-radius: 16px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  animation: fadeInUp 0.8s ease-out;
+  animation-fill-mode: both;
+  transition: all 0.3s ease;
+}
+
+.info-card:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.info-card:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.info-card:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(233, 75, 138, 0.5);
+  background: linear-gradient(135deg, rgba(233, 75, 138, 0.1), rgba(168, 85, 247, 0.1));
+  box-shadow: 0 10px 30px rgba(233, 75, 138, 0.2);
+}
+
+.info-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 1rem 0;
+  background: linear-gradient(135deg, #e94b8a, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.info-card p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+  margin: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .learn-more-header h1 {
+    font-size: 2.5rem;
+  }
+
+  .image-reveal-container {
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+
+  .cursor-indicator {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+@media (max-width: 768px) {
+  .learn-more-container {
+    padding: 1rem;
+  }
+
+  .learn-more-header {
+    margin-bottom: 2rem;
+  }
+
+  .learn-more-header h1 {
+    font-size: 2rem;
+  }
+
+  .learn-more-header p {
+    font-size: 1rem;
+  }
+
+  .image-reveal-container {
+    border-radius: 16px;
+    aspect-ratio: 16 / 9;
+  }
+
+  .learn-more-info {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .info-card {
+    padding: 1.5rem;
+  }
+
+  .info-card h2 {
+    font-size: 1.25rem;
+  }
+
+  .info-card p {
+    font-size: 0.95rem;
+  }
+
+  .cursor-indicator {
+    width: 120px;
+    height: 120px;
+    display: none; /* Hide on mobile for better UX */
+  }
+}
+
+@media (max-width: 480px) {
+  .learn-more-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .learn-more-header p {
+    font-size: 0.9rem;
+  }
+
+  .image-reveal-container {
+    aspect-ratio: 1;
+    border-radius: 12px;
+  }
+
+  .info-card {
+    padding: 1rem;
+  }
+
+  .info-card h2 {
+    font-size: 1.1rem;
+  }
+}
+
+/* Performance Optimizations */
+@media (prefers-reduced-motion: reduce) {
+  .image-reveal-container,
+  .learn-more-header,
+  .info-card,
+  .cursor-indicator {
+    animation: none;
+    transition: none;
+  }
+
+  .info-card:hover {
+    transform: none;
+  }
+}

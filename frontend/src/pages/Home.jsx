@@ -4,6 +4,7 @@ import Footer from "../components/Footer"
 import ScrollVideo from "../components/ScrollVideo"
 import About from "../components/aboutus"
 import "../styles/home.css"
+import Marquee from "../components/Marquee"
 
 const Home = () => {
   return (
@@ -12,6 +13,9 @@ const Home = () => {
       <section id="hero">
         <Hero />
       </section>
+
+      <Marquee />
+
       {/* Scroll Video Section */}
       <section id="scroll-video-section">
         <ScrollVideo />

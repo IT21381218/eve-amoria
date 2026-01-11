@@ -19,3 +19,8 @@ code {
   font-family: main;
   src: url(../public/JadynMaria.otf);
 }
+
+@font-face {
+  font-family: sub;
+  src: url(../public/boiller-free-version.regular.ttf);
+  }

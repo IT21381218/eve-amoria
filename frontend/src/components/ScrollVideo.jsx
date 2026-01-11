@@ -10,20 +10,19 @@ const ScrollVideo = () => {
   const spacerRef = useRef(null)
   const imagesRef = useRef([])
   const rafIdRef = useRef(null)
-  const latestFrameRef = useRef(0)
-  const displayedFrameRef = useRef(0)
+  const currentFrameRef = useRef(0)
   const needResizeRef = useRef(true)
   const lastSizeRef = useRef({ w: 0, h: 0, dpr: 0 })
   const [isActiveFixed, setIsActiveFixed] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
+  // Load all frames
   useEffect(() => {
     let cancelled = false
     const loadAll = async () => {
       const promises = []
-      // load 002.png .. 120.png
-      for (let i = 2; i <= 51; i++) {
-        const num = String(i).padStart(3, "0")
+      for (let i = 1; i <= 50; i++) {
+        const num = String(i).padStart(2, "0")
         const img = new Image()
         img.crossOrigin = "anonymous"
         img.src = `/frames/${num}.png`
@@ -34,7 +33,7 @@ const ScrollVideo = () => {
               console.error(`Failed to load frame: ${num}.png`)
               resolve(null)
             }
-          }),
+          })
         )
       }
       const loaded = await Promise.all(promises)
@@ -42,20 +41,22 @@ const ScrollVideo = () => {
       imagesRef.current = loaded.filter(Boolean)
       setIsLoading(false)
     }
-
     loadAll()
     return () => {
       cancelled = true
     }
   }, [])
 
+  // Ensure canvas matches container size
   const ensureCanvasSize = () => {
     const canvas = canvasRef.current
     const container = containerRef.current
     if (!canvas || !container) return
+
     const dpr = window.devicePixelRatio || 1
     const cw = container.clientWidth
     const ch = container.clientHeight
+
     if (
       lastSizeRef.current.w === cw &&
       lastSizeRef.current.h === ch &&
@@ -64,6 +65,7 @@ const ScrollVideo = () => {
     ) {
       return
     }
+
     needResizeRef.current = false
     lastSizeRef.current = { w: cw, h: ch, dpr }
 
@@ -72,16 +74,22 @@ const ScrollVideo = () => {
     canvas.width = Math.round(cw * dpr)
     canvas.height = Math.round(ch * dpr)
 
-    const ctx = canvas.getContext("2d")
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    ctx.imageSmoothingEnabled = true
-    ctx.clearRect(0, 0, cw, ch)
+    const ctx = canvas.getContext("2d", { alpha: false })
+    if (ctx) {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ctx.imageSmoothingEnabled = true
+      ctx.imageSmoothingQuality = "high"
+    }
   }
 
+  // Draw image with object-fit: cover
   const drawImageCover = (ctx, img, cw, ch) => {
+    if (!img) return
+
     const imgRatio = img.width / img.height
     const canvasRatio = cw / ch
     let drawWidth, drawHeight
+
     if (imgRatio > canvasRatio) {
       drawHeight = ch
       drawWidth = imgRatio * drawHeight
@@ -89,81 +97,75 @@ const ScrollVideo = () => {
       drawWidth = cw
       drawHeight = drawWidth / imgRatio
     }
+
     const dx = (cw - drawWidth) / 2
     const dy = (ch - drawHeight) / 2
+
     ctx.drawImage(img, dx, dy, drawWidth, drawHeight)
   }
 
+  // Render exact frame - Direct 1:1 control
+  const renderFrame = (frameIndex) => {
+    const canvas = canvasRef.current
+    const container = containerRef.current
+    const imgs = imagesRef.current
+
+    if (!canvas || !container || imgs.length === 0) return
+
+    const ctx = canvas.getContext("2d", { alpha: false })
+    if (!ctx) return
+
+    const cw = container.clientWidth
+    const ch = container.clientHeight
+
+    // Round to nearest integer for crisp frames
+    const index = Math.round(frameIndex)
+    const clampedIndex = clamp(index, 0, imgs.length - 1)
+
+    // Only render if frame actually changed
+    if (currentFrameRef.current === clampedIndex) return
+    currentFrameRef.current = clampedIndex
+
+    // Clear and draw single frame
+    ctx.fillStyle = "#000"
+    ctx.fillRect(0, 0, cw, ch)
+    ctx.globalAlpha = 1
+    drawImageCover(ctx, imgs[clampedIndex], cw, ch)
+  }
+
+  // Continuous render loop
   const startRafLoop = () => {
     if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
 
     const loop = () => {
-      if (needResizeRef.current) ensureCanvasSize()
-
-      const imgs = imagesRef.current
-      const frameCount = imgs.length || 1
-
-      const displayed = displayedFrameRef.current
-      const target = latestFrameRef.current
-      const ease = 0.12
-      const nextDisplayed = displayed + (target - displayed) * ease
-
-      // snap to final if target is last and close enough
-      if (target >= frameCount - 1 - 1e-6 && Math.abs(target - nextDisplayed) < 0.01) {
-        displayedFrameRef.current = frameCount - 1
-      } else {
-        displayedFrameRef.current = nextDisplayed
+      if (needResizeRef.current) {
+        ensureCanvasSize()
       }
-
-      const clamped = clamp(displayedFrameRef.current, 0, Math.max(0, frameCount - 1))
-      const canvas = canvasRef.current
-      const ctx = canvas?.getContext("2d")
-      const container = containerRef.current
-      if (ctx && container && imgs.length > 0) {
-        const cw = container.clientWidth
-        const ch = container.clientHeight
-
-        // black background to avoid page white showing through
-        ctx.clearRect(0, 0, cw, ch)
-        ctx.fillStyle = "#000"
-        ctx.fillRect(0, 0, cw, ch)
-
-        const i0 = Math.floor(clamped)
-        const i1 = Math.min(i0 + 1, frameCount - 1)
-        const t = clamped - i0
-
-        ctx.globalAlpha = 1
-        drawImageCover(ctx, imgs[i0], cw, ch)
-
-        if (i1 !== i0 && t > 0) {
-          ctx.globalAlpha = t
-          drawImageCover(ctx, imgs[i1], cw, ch)
-        }
-        ctx.globalAlpha = 1
-      }
-
       rafIdRef.current = requestAnimationFrame(loop)
     }
 
     rafIdRef.current = requestAnimationFrame(loop)
   }
 
+  // Start animation when loaded
   useEffect(() => {
     if (!isLoading && imagesRef.current.length > 0) {
       needResizeRef.current = true
-      displayedFrameRef.current = 0
-      latestFrameRef.current = 0
+      currentFrameRef.current = 0
       startRafLoop()
     }
     return () => {
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
-      rafIdRef.current = null
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current)
+        rafIdRef.current = null
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading])
 
+  // Handle scroll with direct frame control
   useEffect(() => {
     if (isLoading) return
+
     const wrapper = wrapperRef.current
     const container = containerRef.current
     const spacer = spacerRef.current
@@ -172,6 +174,7 @@ const ScrollVideo = () => {
     const onResize = () => {
       needResizeRef.current = true
     }
+
     window.addEventListener("resize", onResize)
     window.addEventListener("orientationchange", onResize)
 
@@ -183,33 +186,37 @@ const ScrollVideo = () => {
     const onScroll = () => {
       if (ticking) return
       ticking = true
+
       requestAnimationFrame(() => {
         const scrollY = window.scrollY
         const spacerHeight = spacer.offsetHeight
-
-        // scrolled inside animation region: 0 .. spacerHeight
-        const scrolled = clamp(scrollY - startTop, 0, spacerHeight)
-        const progress = spacerHeight > 0 ? scrolled / spacerHeight : 0
         const frameCount = imagesRef.current.length || 1
 
-        // set target frames; snap to final frame at end
-        if (progress >= 1) {
-          latestFrameRef.current = frameCount - 1
-          displayedFrameRef.current = frameCount - 1
-        } else if (progress <= 0) {
-          latestFrameRef.current = 0
-        } else {
-          latestFrameRef.current = progress * (frameCount - 1)
-        }
+        // Direct scroll to frame mapping with speed multiplier
+        const scrolled = clamp(scrollY - startTop, 0, spacerHeight)
+        const progress = spacerHeight > 0 ? scrolled / spacerHeight : 0
+        
+        // Frame speed multiplier - increase for more frames per scroll
+        const frameSpeedMultiplier = 1 // Adjust this value (higher = more frames per scroll)
+        
+        // Calculate exact frame based on scroll position
+        let targetFrame = progress * (frameCount - 1) * frameSpeedMultiplier
+        targetFrame = clamp(targetFrame, 0, frameCount - 1)
+        
+        // Render immediately - no easing, direct control
+        renderFrame(targetFrame)
 
+        // Calculate release fade
         const releaseStart = startTop + spacerHeight
         const after = clamp((scrollY - releaseStart) / releaseRangePx, 0, 1)
 
-        // keep fixed until slightly after release end so next section paints under canvas
-        const active = scrollY >= startTop && scrollY < (releaseStart + releaseRangePx + releaseBufferPx)
+        // Determine if fixed
+        const active =
+          scrollY >= startTop &&
+          scrollY < releaseStart + releaseRangePx + releaseBufferPx
         setIsActiveFixed(active)
 
-        // apply smooth fade/translate while releasing (0..1)
+        // Apply fade/transform on release with smooth animation
         if (container) {
           container.style.background = "#000"
           if (after > 0 && after < 1) {
@@ -233,8 +240,7 @@ const ScrollVideo = () => {
       })
     }
 
-    latestFrameRef.current = 0
-    displayedFrameRef.current = 0
+    currentFrameRef.current = -1 // Force initial render
     needResizeRef.current = true
 
     window.addEventListener("scroll", onScroll, { passive: true })
@@ -247,7 +253,7 @@ const ScrollVideo = () => {
     }
   }, [isLoading])
 
-  // keep body background dark while animation active to avoid white flash
+  // Manage body class
   useEffect(() => {
     const className = "scrollvideo-active-bg"
     if (isActiveFixed) {
@@ -260,7 +266,7 @@ const ScrollVideo = () => {
     }
   }, [isActiveFixed])
 
-  // cleanup RAF on unmount and clear inline styles
+  // Cleanup
   useEffect(() => {
     return () => {
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
@@ -270,7 +276,6 @@ const ScrollVideo = () => {
         c.style.transform = ""
         c.style.pointerEvents = ""
         c.style.background = ""
-        c.style.willChange = ""
       }
       document.body.classList.remove("scrollvideo-active-bg")
     }
@@ -296,7 +301,6 @@ const ScrollVideo = () => {
           />
         </div>
       </div>
-
       <div ref={spacerRef} className="scroll-video-spacer" />
     </div>
   )

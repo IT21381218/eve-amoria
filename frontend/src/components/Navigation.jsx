@@ -14,14 +14,34 @@ const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [scrolled, setScrolled] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      const currentScrollY = window.scrollY;
+      
+      // Set scrolled state
+      setScrolled(currentScrollY > 50);
+      
+      // Hide/show navbar logic
+      if (currentScrollY < 100) {
+        // Always show at top
+        setVisible(true);
+      } else if (currentScrollY > lastScrollY) {
+        // Scrolling down - hide navbar
+        setVisible(false);
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up - show navbar
+        setVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
     };
-    window.addEventListener('scroll', handleScroll);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [lastScrollY]);
 
   const scrollToSection = (id, idx) => {
     const element = document.getElementById(id);
@@ -34,7 +54,7 @@ const Navigation = () => {
 
   return (
     <>
-      <nav className={`luxury-navbar ${scrolled ? 'scrolled' : ''}`}>
+      <nav className={`luxury-navbar ${scrolled ? 'scrolled' : ''} ${visible ? 'visible' : 'hidden'}`}>
         <div className="luxury-nav-container">
           {/* Left Navigation */}
           <ul className="luxury-nav-links left-nav desktop-only">
@@ -73,6 +93,7 @@ const Navigation = () => {
           <button 
             className="luxury-menu-toggle mobile-only" 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
           >
             {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>

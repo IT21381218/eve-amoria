@@ -21,7 +21,7 @@ const ScrollVideo = () => {
     let cancelled = false
     const loadAll = async () => {
       const promises = []
-      for (let i = 1; i <= 50; i++) {
+      for (let i = 2; i <= 50; i++) {
         const num = String(i).padStart(2, "0")
         const img = new Image()
         img.crossOrigin = "anonymous"

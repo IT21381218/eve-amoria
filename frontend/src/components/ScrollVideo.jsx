@@ -16,31 +16,65 @@ const ScrollVideo = () => {
   const [isActiveFixed, setIsActiveFixed] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Load all frames
+  // Load all frames with mobile optimization
   useEffect(() => {
     let cancelled = false
     const loadAll = async () => {
       const promises = []
-      for (let i = 2; i <= 50; i++) {
+      // Start from frame 1, not 2
+      for (let i = 1; i <= 50; i++) {
         const num = String(i).padStart(2, "0")
         const img = new Image()
         img.crossOrigin = "anonymous"
         img.src = `/frames/${num}.png`
+        
         promises.push(
           new Promise((resolve) => {
-            img.onload = () => resolve(img)
+            img.onload = () => {
+              // Validate image is fully loaded
+              if (img.complete && img.naturalHeight !== 0 && img.naturalWidth !== 0) {
+                resolve(img)
+              } else {
+                console.warn(`Image loaded but invalid: ${num}.png`)
+                resolve(null)
+              }
+            }
             img.onerror = () => {
               console.error(`Failed to load frame: ${num}.png`)
               resolve(null)
             }
+            // Add timeout for slow mobile connections
+            setTimeout(() => {
+              if (!img.complete) {
+                console.warn(`Timeout loading: ${num}.png`)
+                resolve(null)
+              }
+            }, 15000) // 15 second timeout for mobile
           })
         )
       }
+      
       const loaded = await Promise.all(promises)
       if (cancelled) return
-      imagesRef.current = loaded.filter(Boolean)
-      setIsLoading(false)
+      
+      const validImages = loaded.filter(Boolean)
+      
+      if (validImages.length === 0) {
+        console.error("No frames loaded successfully")
+        setIsLoading(false)
+        return
+      }
+      
+      imagesRef.current = validImages
+      
+      // Extra delay for mobile to ensure images are decoded
+      setTimeout(() => {
+        if (!cancelled) {
+          setIsLoading(false)
+        }
+      }, 200)
     }
+    
     loadAll()
     return () => {
       cancelled = true
@@ -74,7 +108,7 @@ const ScrollVideo = () => {
     canvas.width = Math.round(cw * dpr)
     canvas.height = Math.round(ch * dpr)
 
-    const ctx = canvas.getContext("2d", { alpha: false })
+    const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true })
     if (ctx) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.imageSmoothingEnabled = true
@@ -104,7 +138,7 @@ const ScrollVideo = () => {
     ctx.drawImage(img, dx, dy, drawWidth, drawHeight)
   }
 
-  // Render exact frame - Direct 1:1 control
+  // Render exact frame with validation
   const renderFrame = (frameIndex) => {
     const canvas = canvasRef.current
     const container = containerRef.current
@@ -121,6 +155,17 @@ const ScrollVideo = () => {
     // Round to nearest integer for crisp frames
     const index = Math.round(frameIndex)
     const clampedIndex = clamp(index, 0, imgs.length - 1)
+    
+    // Get the image
+    const img = imgs[clampedIndex]
+    
+    // Validate image before drawing
+    if (!img || !img.complete || img.naturalHeight === 0 || img.naturalWidth === 0) {
+      // Draw black background if image not ready
+      ctx.fillStyle = "#000"
+      ctx.fillRect(0, 0, cw, ch)
+      return
+    }
 
     // Only render if frame actually changed
     if (currentFrameRef.current === clampedIndex) return
@@ -130,7 +175,13 @@ const ScrollVideo = () => {
     ctx.fillStyle = "#000"
     ctx.fillRect(0, 0, cw, ch)
     ctx.globalAlpha = 1
-    drawImageCover(ctx, imgs[clampedIndex], cw, ch)
+    
+    try {
+      drawImageCover(ctx, img, cw, ch)
+    } catch (error) {
+      console.error("Error drawing frame:", clampedIndex, error)
+      // Keep black background on error
+    }
   }
 
   // Continuous render loop
@@ -151,7 +202,14 @@ const ScrollVideo = () => {
   useEffect(() => {
     if (!isLoading && imagesRef.current.length > 0) {
       needResizeRef.current = true
-      currentFrameRef.current = 0
+      currentFrameRef.current = -1 // Force initial render
+      
+      // Render first frame immediately
+      requestAnimationFrame(() => {
+        ensureCanvasSize()
+        renderFrame(0)
+      })
+      
       startRafLoop()
     }
     return () => {
@@ -196,14 +254,14 @@ const ScrollVideo = () => {
         const scrolled = clamp(scrollY - startTop, 0, spacerHeight)
         const progress = spacerHeight > 0 ? scrolled / spacerHeight : 0
         
-        // Frame speed multiplier - increase for more frames per scroll
-        const frameSpeedMultiplier = 1 // Adjust this value (higher = more frames per scroll)
+        // Frame speed multiplier
+        const frameSpeedMultiplier = 1
         
         // Calculate exact frame based on scroll position
         let targetFrame = progress * (frameCount - 1) * frameSpeedMultiplier
         targetFrame = clamp(targetFrame, 0, frameCount - 1)
         
-        // Render immediately - no easing, direct control
+        // Render immediately
         renderFrame(targetFrame)
 
         // Calculate release fade
@@ -216,7 +274,7 @@ const ScrollVideo = () => {
           scrollY < releaseStart + releaseRangePx + releaseBufferPx
         setIsActiveFixed(active)
 
-        // Apply fade/transform on release with smooth animation
+        // Apply fade/transform on release
         if (container) {
           container.style.background = "#000"
           if (after > 0 && after < 1) {
@@ -240,7 +298,7 @@ const ScrollVideo = () => {
       })
     }
 
-    currentFrameRef.current = -1 // Force initial render
+    currentFrameRef.current = -1
     needResizeRef.current = true
 
     window.addEventListener("scroll", onScroll, { passive: true })
@@ -276,6 +334,7 @@ const ScrollVideo = () => {
         c.style.transform = ""
         c.style.pointerEvents = ""
         c.style.background = ""
+        c.style.willChange = ""
       }
       document.body.classList.remove("scrollvideo-active-bg")
     }
@@ -290,8 +349,9 @@ const ScrollVideo = () => {
         >
           {isLoading && (
             <div className="scroll-video-loader">
-              <div className="spinner" />
-              <p>Loading animation...</p>
+              <div className="apple-loader">
+                <div className="apple-spinner"></div>
+              </div>
             </div>
           )}
           <canvas
